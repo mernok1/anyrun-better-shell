@@ -14,3 +14,5 @@ crate-type = [
 [dependencies]
 abi_stable = "0.11.3"
 anyrun-plugin = "0.1.0"
+ron = "0.8.1"
+serde = { version = "1.0.152", features = ["derive"] }
