@@ -25,7 +25,7 @@ impl Default for Config {
 
 #[init]
 fn init(config_dir: RString) -> Config {
-    match fs::read_to_string(format!("{}/shell.ron", config_dir)) {
+    match fs::read_to_string(format!("{}/better_shell.ron", config_dir)) {
         Ok(content) => ron::from_str(&content).unwrap_or_default(),
         Err(_) => Config::default(),
     }

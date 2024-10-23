@@ -27,7 +27,7 @@ Config(
     ]
 )
 ```
-Create a configuration file for your custom plugin (below the default configuration)
+Create a configuration file `~/.config/anyrun/better_shell.ron` for your custom plugin (below the default configuration)
 ```rust
 Config (
     prefix: ":bsh"
