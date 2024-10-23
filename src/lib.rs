@@ -8,6 +8,8 @@ use serde::Deserialize;
 struct Config {
     prefix: String,
     shell: Option<String>,
+    stdout: String,
+    max_line: u16,
 }
 
 impl Default for Config {
@@ -15,6 +17,8 @@ impl Default for Config {
         Config {
             prefix: ":bsh".to_string(),
             shell: None,
+            stdout: "".to_string(),
+            max_line: 65535,
         }
     }
 }
@@ -30,28 +34,34 @@ fn init(config_dir: RString) -> Config {
 #[info]
 fn info() -> PluginInfo {
     PluginInfo {
-        name: "Shell".into(),
+        name: "Better Shell".into(),
         icon: "utilities-terminal".into(),
     }
 }
 
 #[get_matches]
-fn get_matches(input: RString, config: &Config) -> RVec<Match> {
+fn get_matches(input: RString, config: &mut Config) -> RVec<Match> {
     if input.starts_with(&config.prefix) {
         let (_, command) = input.split_once(&config.prefix).unwrap();
         if !command.is_empty() {
+            config.stdout = command.trim().to_string();
+
+            let output = Command::new(
+                config.shell.clone().unwrap_or_else(|| {
+                    env::var("SHELL").unwrap_or_else(|_| {
+                        "The shell could not be determined!".to_string()
+                    })
+                })
+            )
+            .arg("-c")
+            .arg(format!("{} | head -n {}",command.trim().to_string(), config.max_line))
+            .output()
+            .expect("Command not running");
+
             vec![Match {
-                title: command.trim().into(),
+                title: config.stdout.clone().into(),
                 description: ROption::RSome(
-                    config
-                        .shell
-                        .clone()
-                        .unwrap_or_else(|| {
-                            env::var("SHELL").unwrap_or_else(|_| {
-                                "The shell could not be determined!".to_string()
-                            })
-                        })
-                        .into(),
+                   RString::from_utf8(output.stdout).unwrap(),
                 ),
                 use_pango: false,
                 icon: ROption::RNone,
@@ -67,12 +77,8 @@ fn get_matches(input: RString, config: &Config) -> RVec<Match> {
 }
 
 #[handler]
-fn handler(selection: Match) -> HandleResult {
-    let output = Command::new(selection.description.unwrap().as_str())
-        .arg("-c")
-        .arg(selection.title.as_str())
-        .output()
-        .expect("Failed to run command");
-  
-        HandleResult::Copy(output.stdout.into())
+fn handler(_selection: Match) -> HandleResult {
+        HandleResult::Close
+        // HandleResult::Close;
+
 }

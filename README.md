@@ -27,3 +27,12 @@ Config(
     ]
 )
 ```
+Create a configuration file for your custom plugin (below the default configuration)
+```rust
+Config (
+    prefix: ":bsh"
+    shell: None, //bash, zsh, etc.
+    stdout: "",
+    max_line: 65535, //max lenght of the command result ( 65535 = 2 ^ 16)
+    }
+)
