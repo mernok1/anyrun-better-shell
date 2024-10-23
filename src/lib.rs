@@ -13,7 +13,7 @@ struct Config {
 impl Default for Config {
     fn default() -> Self {
         Config {
-            prefix: ":sh".to_string(),
+            prefix: ":bsh".to_string(),
             shell: None,
         }
     }
